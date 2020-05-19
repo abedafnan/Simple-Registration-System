@@ -1,11 +1,21 @@
 package sample;
 
+import sample.models.Course;
+import sample.models.Student;
+import sample.utils.DBConnection;
+import sample.utils.FormInterface;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.sql.Statement;
 
-public class CoursesForm extends JFrame {
+public class CoursesForm extends JFrame implements FormInterface {
+
+    DBConnection dbConnection;
+    Statement statement;
 
     private JPanel mainPanel;
     private JPanel btnsPanel;
@@ -16,6 +26,7 @@ public class CoursesForm extends JFrame {
     private JLabel name;
     private JLabel section;
     private JLabel hours;
+    private JLabel label;
 
     private JTextField nameField;
     private JTextField sectionField;
@@ -37,7 +48,9 @@ public class CoursesForm extends JFrame {
         addBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: Save student into the DB
+                // Create course and save it into the DB
+                Course course = (Course) getFormInfo();
+                saveCourseIntoDB(course);
             }
         });
 
@@ -60,7 +73,7 @@ public class CoursesForm extends JFrame {
         createMainComponents(mainPanel);
     }
 
-    private void createMainComponents(JPanel panel) {
+    public void createMainComponents(JPanel panel) {
         name = new JLabel("Course Name");
         section = new JLabel("Course Section");
         hours = new JLabel("Hours");
@@ -75,5 +88,51 @@ public class CoursesForm extends JFrame {
         panel.add(sectionField);
         panel.add(hours);
         panel.add(hoursField);
+
+        label = new JLabel("TEST");
+        panel.add(label);
+    }
+
+    @Override
+    public Object getFormInfo() {
+        String name = nameField.getText();
+        String section = sectionField.getText();
+        String hours = hoursField.getText();
+
+        if (name.isEmpty() || section.isEmpty() || hours.isEmpty()) {
+            label.setForeground(Color.RED);
+            label.setText("All fields are required");
+        }
+
+        Course course = new Course(name, section, hours);
+        return course;
+    }
+
+    private void saveCourseIntoDB(Course course) {
+        dbConnection = DBConnection.getDbConnection();
+        statement = dbConnection.createStatement();
+
+        try {
+            String query = "INSERT INTO courses(name, section, hours) VALUES ('"
+                    + course.getName() + "', '" + course.getSection() + "', '" + course.getHours() + "')";
+            statement.executeUpdate(query);
+
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        // Show that the query was successful
+        label.setForeground(Color.GREEN);
+        label.setText("Course inserted successfully");
+
+        // Clear all the input fields
+        clear();
+    }
+
+    @Override
+    public void clear() {
+        nameField.setText("");
+        sectionField.setText("");
+        hoursField.setText("");
     }
 }

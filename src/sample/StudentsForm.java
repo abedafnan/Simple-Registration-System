@@ -1,13 +1,20 @@
 package sample;
 
 import sample.models.Student;
+import sample.utils.DBConnection;
+import sample.utils.FormInterface;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.sql.Statement;
 
-public class StudentsForm extends JFrame {
+public class StudentsForm extends JFrame implements FormInterface {
+
+    DBConnection dbConnection;
+    Statement statement;
 
     private JPanel mainPanel;
     private JPanel btnsPanel;
@@ -20,7 +27,7 @@ public class StudentsForm extends JFrame {
     private JLabel email;
     private JLabel country;
     private JLabel city;
-    private JLabel error;
+    private JLabel label;
 
     private JTextField fnameField;
     private JTextField lnameFiled;
@@ -46,7 +53,7 @@ public class StudentsForm extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Create student and save it into the DB
-                Student student = getStudentInfo();
+                Student student = (Student) getFormInfo();
                 saveStudentInDB(student);
             }
         });
@@ -68,7 +75,7 @@ public class StudentsForm extends JFrame {
         add(btnsPanel, BorderLayout.SOUTH);
     }
 
-    private void createMainComponents(JPanel panel) {
+    public void createMainComponents(JPanel panel) {
         firstName = new JLabel("First Name");
         lastName = new JLabel("Last Name");
         email = new JLabel("Email");
@@ -92,11 +99,11 @@ public class StudentsForm extends JFrame {
         panel.add(city);
         panel.add(cityField);
 
-        error = new JLabel();
-        panel.add(error);
+        label = new JLabel();
+        panel.add(label);
     }
 
-    private Student getStudentInfo() {
+    public Object getFormInfo() {
         String firstName = fnameField.getText();
         String lastName = lnameFiled.getText();
         String email = emailField.getText();
@@ -104,8 +111,8 @@ public class StudentsForm extends JFrame {
         String city = cityField.getText();
 
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty()) {
-            error.setForeground(Color.RED);
-            error.setText("first name, last name, and email are required");
+            label.setForeground(Color.RED);
+            label.setText("first name, last name, and email are required");
         }
 
         Student.Builder builder = new Student.Builder();
@@ -119,6 +126,32 @@ public class StudentsForm extends JFrame {
     }
 
     private void saveStudentInDB(Student student) {
+        dbConnection = DBConnection.getDbConnection();
+        statement = dbConnection.createStatement();
 
+        try {
+            String query = "INSERT INTO students(first_name, last_name, email, city, country) VALUES ('"
+                    + student.getFirstName() + "', '" + student.getLastName() + "', '" + student.getEmail()
+                    + "', '" + student.getCity() + "', '" + student.getCountry() + "')";
+            statement.executeUpdate(query);
+
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        // Show that the query was successful
+        label.setForeground(Color.GREEN);
+        label.setText("Student inserted successfully");
+
+        // Clear all the input fields
+        clear();
+    }
+
+    public void clear() {
+        fnameField.setText("");
+        lnameFiled.setText("");
+        emailField.setText("");
+        cityField.setText("");
+        countryField.setText("");
     }
 }

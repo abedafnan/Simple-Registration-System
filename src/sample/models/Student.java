@@ -2,13 +2,15 @@ package sample.models;
 
 public class Student {
 
+    private int id;
     private String firstName;
     private String lastName;
     private String email;
     private String city;
     private String country;
 
-    private Student(String firstName, String lastName, String email) {
+    private Student(int id, String firstName, String lastName, String email) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -20,6 +22,10 @@ public class Student {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getFirstName() {
@@ -43,6 +49,7 @@ public class Student {
     }
 
     public static class Builder {
+        private int id;
         private String firstName;
         private String lastName;
         private String email;
@@ -60,13 +67,17 @@ public class Student {
                 throw new NullPointerException("email is required");
             }
 
-            Student student = new Student(firstName, lastName, email);
+            Student student = new Student(id, firstName, lastName, email);
 
             student.setCity(city);
             student.setCountry(country);
 
             return student;
         }
+        public void setId(int id) {
+            this.id = id;
+        }
+
         public void setFirstName(String firstName) {
             this.firstName = firstName;
         }

@@ -89,7 +89,7 @@ public class CoursesForm extends JFrame implements FormInterface {
         panel.add(hours);
         panel.add(hoursField);
 
-        label = new JLabel("TEST");
+        label = new JLabel();
         panel.add(label);
     }
 

@@ -55,7 +55,9 @@ public class Main extends JFrame {
         enrollmentBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: Go to Enrollment Form
+                EnrollmentForm form = new EnrollmentForm("Enroll Students in Courses");
+                Main.this.setVisible(false);
+                form.setVisible(true);
             }
         });
 
